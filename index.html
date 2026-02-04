@@ -24,17 +24,69 @@
         /* Student Card */
         .student-card { background: var(--card); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .card-header { display: flex; justify-content: space-between; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px; margin-bottom: 15px; }
-        .card-body { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
-        @media(max-width: 700px) { .card-body { grid-template-columns: 1fr; } }
 
-        /* Attendance Table */
-        .attendance-wrapper { overflow-x: auto; }
-        table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
-        th, td { border: 1px solid #e5e7eb; padding: 8px; text-align: center; min-width: 80px; }
-        th input { width: 100%; border: none; text-align: center; font-weight: bold; background: transparent; }
+        /* Layout Grid: Attendance (Left) - Topics (Right) */
+        .card-body { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
+        @media(max-width: 800px) { .card-body { grid-template-columns: 1fr; } }
+
+        /* NEW: Attendance Grid System */
+        .attendance-grid {
+            display: grid;
+            /* Exactly 4 items per row */
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+
+        /* Responsive: On phones, switch to 2 per row so it's not tiny */
+        @media (max-width: 600px) {
+            .attendance-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        /* Individual Lesson Box */
+        .lesson-unit {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+            background: #f9fafb;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .lesson-unit input[type="text"] {
+            width: 100%;
+            text-align: center;
+            border: none;
+            background: transparent;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #4b5563;
+        }
+
+        .lesson-unit input[type="checkbox"] {
+            transform: scale(1.2); /* Make checkbox slightly bigger */
+            cursor: pointer;
+        }
+
+        /* The "Add New" button inside the grid */
+        .add-lesson-btn {
+            border: 2px dashed #e5e7eb;
+            background: white;
+            color: #6b7280;
+            font-size: 1.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            min-height: 60px;
+        }
+        .add-lesson-btn:hover { border-color: var(--primary); color: var(--primary); }
 
         /* Topic List */
-        .topics ul { list-style: none; padding: 0; }
+        .topics ul { list-style: none; padding: 0; margin-top: 0;}
         .topics li { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f3f4f6; }
         .topic-input { display: flex; gap: 5px; margin-top: 10px; }
         .topic-input input { flex: 1; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; }
@@ -54,24 +106,20 @@
 </div>
 
 <script>
-    // ▼▼▼▼▼ PASTE YOUR WEB APP URL HEREf ▼▼▼▼▼
+    // ▼▼▼▼▼ PASTE YOUR URL HERE AGAIN ▼▼▼▼▼
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxIaCKdjXqS07bEFfyzeFC4luUDveWCD_A_AGmZsHtp9AFNOWuuNbkeaklQ321VJIYz/exec";
-    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
     let students = [];
     let saveTimeout;
 
-    // --- INITIALIZATION ---
     async function loadData() {
         updateStatus("Loading...", "saving");
         try {
             const response = await fetch(GOOGLE_SCRIPT_URL);
             const data = await response.json();
-
-            // Transform simpler Sheet data back into full objects
             students = data.map(item => {
                 const parsed = JSON.parse(item.json);
-                // Ensure legacy data has correct structure
                 return {
                     id: parsed.id || Date.now(),
                     name: item.name,
@@ -80,7 +128,6 @@
                     topics: parsed.topics || []
                 };
             });
-
             render();
             updateStatus("Synced with Sheets", "saved");
         } catch (e) {
@@ -89,19 +136,14 @@
         }
     }
 
-    // --- SAVING ---
     function triggerSave() {
-        render(); // Update UI immediately
+        render();
         updateStatus("Saving changes...", "saving");
-
         clearTimeout(saveTimeout);
-        // Debounce: Wait 2 seconds after user stops typing to save to server
         saveTimeout = setTimeout(saveToGoogleSheets, 2000);
     }
 
     async function saveToGoogleSheets() {
-        // Prepare data for the sheet
-        // We send a simplified list required by the backend
         const payload = students.map(s => ({
             name: s.name,
             id: s.id,
@@ -109,11 +151,10 @@
             attendance: s.attendance,
             topics: s.topics
         }));
-
         try {
             await fetch(GOOGLE_SCRIPT_URL, {
                 method: "POST",
-                mode: "no-cors", // Crucial for Google Apps Script
+                mode: "no-cors",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
             });
@@ -129,15 +170,14 @@
         el.className = `status-bar ${type}`;
     }
 
-    // --- LOGIC ---
     function addNewStudent() {
         const name = prompt("Student Name:");
         if(!name) return;
         students.push({
             id: Date.now(),
             name: name,
-            dates: ["Lesson 1", "Lesson 2"],
-            attendance: [false, false],
+            dates: ["Lesson 1", "Lesson 2", "Lesson 3", "Lesson 4"],
+            attendance: [false, false, false, false],
             topics: []
         });
         triggerSave();
@@ -182,22 +222,26 @@
         triggerSave();
     }
 
-    // --- RENDER ---
     function render() {
         const app = document.getElementById('app');
         app.innerHTML = "";
 
         students.forEach(s => {
-            // Build Grid
-            let headers = s.dates.map((d, i) =>
-                `<th><input value="${d}" onchange="updateHeader(${s.id}, ${i}, this.value)"></th>`
-            ).join("");
+            // New "Block" builder for attendance
+            let lessonBlocks = s.dates.map((d, i) => `
+                <div class="lesson-unit">
+                    <input type="text" value="${d}" onchange="updateHeader(${s.id}, ${i}, this.value)">
+                    <input type="checkbox" ${s.attendance[i] ? "checked" : ""} onchange="toggleAttendance(${s.id}, ${i})">
+                </div>
+            `).join("");
 
-            let checks = s.attendance.map((checked, i) =>
-                `<td><input type="checkbox" ${checked ? "checked" : ""} onchange="toggleAttendance(${s.id}, ${i})"></td>`
-            ).join("");
+            // The "+" button is now part of the grid
+            lessonBlocks += `
+                <div class="add-lesson-btn" onclick="addColumn(${s.id})" title="Add Lesson">
+                    +
+                </div>
+            `;
 
-            // Build Topics
             let topicList = s.topics.map((t, i) =>
                 `<li>${t} <span style="color:red;cursor:pointer" onclick="removeTopic(${s.id}, ${i})">&times;</span></li>`
             ).join("");
@@ -209,15 +253,14 @@
                     <button class="delete" onclick="deleteStudent(${s.id})">Remove</button>
                 </div>
                 <div class="card-body">
-                    <div class="attendance-wrapper">
-                        <h4>Attendance</h4>
-                        <table>
-                            <thead><tr>${headers}<th><button class="small" onclick="addColumn(${s.id})">+</button></th></tr></thead>
-                            <tbody><tr>${checks}<td></td></tr></tbody>
-                        </table>
+                    <div>
+                        <h4 style="margin-top:0">Attendance</h4>
+                        <div class="attendance-grid">
+                            ${lessonBlocks}
+                        </div>
                     </div>
                     <div class="topics">
-                        <h4>Topics Covered</h4>
+                        <h4 style="margin-top:0">Topics Covered</h4>
                         <ul>${topicList}</ul>
                         <div class="topic-input">
                             <input id="input-${s.id}" placeholder="New topic...">
@@ -229,7 +272,6 @@
         });
     }
 
-    // Start
     loadData();
 </script>
 </body>
