@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutor Dashboard</title>
+    <style>
+        :root { --primary: #2563eb; --bg: #f3f4f6; --card: #ffffff; --text: #1f2937; }
+        body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 20px; }
+        .container { max-width: 1000px; margin: 0 auto; }
+
+        /* Header & Status */
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .status-bar { font-size: 0.9rem; margin-right: 15px; font-weight: bold; }
+        .saving { color: #d97706; }
+        .saved { color: #059669; }
+        .error { color: #dc2626; }
+
+        button { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
+        button:hover { opacity: 0.9; }
+        button.delete { background: #fee2e2; color: #dc2626; padding: 4px 8px; font-size: 0.8rem; }
+        button.small { background: #e5e7eb; color: var(--text); padding: 4px 8px; font-size: 0.8rem; }
+
+        /* Student Card */
+        .student-card { background: var(--card); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .card-header { display: flex; justify-content: space-between; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px; margin-bottom: 15px; }
+        .card-body { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        @media(max-width: 700px) { .card-body { grid-template-columns: 1fr; } }
+
+        /* Attendance Table */
+        .attendance-wrapper { overflow-x: auto; }
+        table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+        th, td { border: 1px solid #e5e7eb; padding: 8px; text-align: center; min-width: 80px; }
+        th input { width: 100%; border: none; text-align: center; font-weight: bold; background: transparent; }
+
+        /* Topic List */
+        .topics ul { list-style: none; padding: 0; }
+        .topics li { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f3f4f6; }
+        .topic-input { display: flex; gap: 5px; margin-top: 10px; }
+        .topic-input input { flex: 1; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>My Students</h1>
+        <div>
+            <span id="status" class="status-bar">Loading data...</span>
+            <button onclick="addNewStudent()">+ Add Student</button>
+        </div>
+    </header>
+    <div id="app"></div>
+</div>
+
+<script>
+    // ▼▼▼▼▼ PASTE YOUR WEB APP URL HERE ▼▼▼▼▼
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxIaCKdjXqS07bEFfyzeFC4luUDveWCD_A_AGmZsHtp9AFNOWuuNbkeaklQ321VJIYz/exec";
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+
+    let students = [];
+    let saveTimeout;
+
+    // --- INITIALIZATION ---
+    async function loadData() {
+        updateStatus("Loading...", "saving");
+        try {
+            const response = await fetch(GOOGLE_SCRIPT_URL);
+            const data = await response.json();
+
+            // Transform simpler Sheet data back into full objects
+            students = data.map(item => {
+                const parsed = JSON.parse(item.json);
+                // Ensure legacy data has correct structure
+                return {
+                    id: parsed.id || Date.now(),
+                    name: item.name,
+                    dates: parsed.dates || ["Lesson 1", "Lesson 2"],
+                    attendance: parsed.attendance || [false, false],
+                    topics: parsed.topics || []
+                };
+            });
+
+            render();
+            updateStatus("Synced with Sheets", "saved");
+        } catch (e) {
+            console.error(e);
+            updateStatus("Error loading data", "error");
+        }
+    }
+
+    // --- SAVING ---
+    function triggerSave() {
+        render(); // Update UI immediately
+        updateStatus("Saving changes...", "saving");
+
+        clearTimeout(saveTimeout);
+        // Debounce: Wait 2 seconds after user stops typing to save to server
+        saveTimeout = setTimeout(saveToGoogleSheets, 2000);
+    }
+
+    async function saveToGoogleSheets() {
+        // Prepare data for the sheet
+        // We send a simplified list required by the backend
+        const payload = students.map(s => ({
+            name: s.name,
+            id: s.id,
+            dates: s.dates,
+            attendance: s.attendance,
+            topics: s.topics
+        }));
+
+        try {
+            await fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors", // Crucial for Google Apps Script
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload)
+            });
+            updateStatus("All changes saved", "saved");
+        } catch (e) {
+            updateStatus("Save failed!", "error");
+        }
+    }
+
+    function updateStatus(msg, type) {
+        const el = document.getElementById('status');
+        el.textContent = msg;
+        el.className = `status-bar ${type}`;
+    }
+
+    // --- LOGIC ---
+    function addNewStudent() {
+        const name = prompt("Student Name:");
+        if(!name) return;
+        students.push({
+            id: Date.now(),
+            name: name,
+            dates: ["Lesson 1", "Lesson 2"],
+            attendance: [false, false],
+            topics: []
+        });
+        triggerSave();
+    }
+
+    function deleteStudent(id) {
+        if(confirm("Delete this student?")) {
+            students = students.filter(s => s.id !== id);
+            triggerSave();
+        }
+    }
+
+    function updateHeader(id, index, val) {
+        students.find(s => s.id === id).dates[index] = val;
+        triggerSave();
+    }
+
+    function toggleAttendance(id, index) {
+        const s = students.find(s => s.id === id);
+        s.attendance[index] = !s.attendance[index];
+        triggerSave();
+    }
+
+    function addColumn(id) {
+        const s = students.find(s => s.id === id);
+        s.dates.push(`Lesson ${s.dates.length + 1}`);
+        s.attendance.push(false);
+        triggerSave();
+    }
+
+    function addTopic(id) {
+        const input = document.getElementById(`input-${id}`);
+        if(input.value) {
+            students.find(s => s.id === id).topics.push(input.value);
+            input.value = "";
+            triggerSave();
+        }
+    }
+
+    function removeTopic(id, idx) {
+        students.find(s => s.id === id).topics.splice(idx, 1);
+        triggerSave();
+    }
+
+    // --- RENDER ---
+    function render() {
+        const app = document.getElementById('app');
+        app.innerHTML = "";
+
+        students.forEach(s => {
+            // Build Grid
+            let headers = s.dates.map((d, i) =>
+                `<th><input value="${d}" onchange="updateHeader(${s.id}, ${i}, this.value)"></th>`
+            ).join("");
+
+            let checks = s.attendance.map((checked, i) =>
+                `<td><input type="checkbox" ${checked ? "checked" : ""} onchange="toggleAttendance(${s.id}, ${i})"></td>`
+            ).join("");
+
+            // Build Topics
+            let topicList = s.topics.map((t, i) =>
+                `<li>${t} <span style="color:red;cursor:pointer" onclick="removeTopic(${s.id}, ${i})">&times;</span></li>`
+            ).join("");
+
+            app.innerHTML += `
+            <div class="student-card">
+                <div class="card-header">
+                    <h3>${s.name}</h3>
+                    <button class="delete" onclick="deleteStudent(${s.id})">Remove</button>
+                </div>
+                <div class="card-body">
+                    <div class="attendance-wrapper">
+                        <h4>Attendance</h4>
+                        <table>
+                            <thead><tr>${headers}<th><button class="small" onclick="addColumn(${s.id})">+</button></th></tr></thead>
+                            <tbody><tr>${checks}<td></td></tr></tbody>
+                        </table>
+                    </div>
+                    <div class="topics">
+                        <h4>Topics Covered</h4>
+                        <ul>${topicList}</ul>
+                        <div class="topic-input">
+                            <input id="input-${s.id}" placeholder="New topic...">
+                            <button class="small" onclick="addTopic(${s.id})">Add</button>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        });
+    }
+
+    // Start
+    loadData();
+</script>
+</body>
+</html>
