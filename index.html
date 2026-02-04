@@ -3,93 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tutor Dashboard</title>
+    <title>Miras's Tutor Dashboard</title>
     <style>
-        :root { --primary: #2563eb; --bg: #f3f4f6; --card: #ffffff; --text: #1f2937; }
+        :root { --primary: #2563eb; --bg: #f3f4f6; --card: #ffffff; --text: #1f2937; --border: #e5e7eb; }
         body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 20px; }
-        .container { max-width: 1000px; margin: 0 auto; }
+        .container { max-width: 1100px; margin: 0 auto; }
 
         /* Header & Status */
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .status-bar { font-size: 0.9rem; margin-right: 15px; font-weight: bold; }
+        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        h1 { margin: 0; font-size: 1.8rem; color: #111827; }
+        .status-bar { font-size: 0.9rem; margin-right: 15px; font-weight: 600; }
         .saving { color: #d97706; }
         .saved { color: #059669; }
         .error { color: #dc2626; }
 
-        button { background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; }
-        button:hover { opacity: 0.9; }
-        button.delete { background: #fee2e2; color: #dc2626; padding: 4px 8px; font-size: 0.8rem; }
-        button.small { background: #e5e7eb; color: var(--text); padding: 4px 8px; font-size: 0.8rem; }
+        button { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.2s; }
+        button:hover { opacity: 0.9; transform: translateY(-1px); }
+        button.delete { background: #fee2e2; color: #dc2626; padding: 6px 12px; font-size: 0.85rem; }
 
         /* Student Card */
-        .student-card { background: var(--card); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .card-header { display: flex; justify-content: space-between; border-bottom: 1px solid #e5e7eb; padding-bottom: 10px; margin-bottom: 15px; }
+        .student-card { background: var(--card); border-radius: 16px; padding: 25px; margin-bottom: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid var(--border); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
+        .card-header h3 { margin: 0; font-size: 1.4rem; }
 
-        /* Layout Grid: Attendance (Left) - Topics (Right) */
-        .card-body { display: grid; grid-template-columns: 2fr 1fr; gap: 30px; }
-        @media(max-width: 800px) { .card-body { grid-template-columns: 1fr; } }
+        /* Main Layout */
+        .card-body { display: grid; grid-template-columns: 1fr; gap: 30px; }
 
-        /* NEW: Attendance Grid System */
+        /* THE GRID: 4 columns */
         .attendance-grid {
             display: grid;
-            /* Exactly 4 items per row */
             grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
+            gap: 15px;
         }
+        @media (max-width: 900px) { .attendance-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 500px) { .attendance-grid { grid-template-columns: 1fr; } }
 
-        /* Responsive: On phones, switch to 2 per row so it's not tiny */
-        @media (max-width: 600px) {
-            .attendance-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-
-        /* Individual Lesson Box */
+        /* ADVANCED LESSON BOX */
         .lesson-unit {
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 8px;
-            text-align: center;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
             background: #f9fafb;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 5px;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .lesson-unit:focus-within { border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
+
+        /* Lesson Label (Lesson 1) */
+        .lesson-header { display: flex; justify-content: space-between; align-items: center; }
+        .lesson-label {
+            font-weight: 700; font-size: 0.9rem; color: #374151; width: 100%; border: none; background: transparent;
         }
 
-        .lesson-unit input[type="text"] {
+        /* Checkbox */
+        .attendance-check { width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary); }
+
+        /* Inputs inside box */
+        .lesson-meta input {
             width: 100%;
-            text-align: center;
-            border: none;
-            background: transparent;
-            font-weight: 600;
+            padding: 6px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
             font-size: 0.85rem;
-            color: #4b5563;
+            margin-top: 4px;
+            box-sizing: border-box; /* Fixes width issues */
         }
+        .lesson-meta input:focus { outline: none; border-color: var(--primary); }
+        .date-input { color: #6b7280; font-family: monospace; }
 
-        .lesson-unit input[type="checkbox"] {
-            transform: scale(1.2); /* Make checkbox slightly bigger */
-            cursor: pointer;
-        }
-
-        /* The "Add New" button inside the grid */
+        /* Add Button */
         .add-lesson-btn {
-            border: 2px dashed #e5e7eb;
-            background: white;
-            color: #6b7280;
-            font-size: 1.5rem;
-            cursor: pointer;
+            border: 2px dashed var(--border);
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 8px;
-            min-height: 60px;
+            color: #9ca3af;
+            font-size: 2rem;
+            cursor: pointer;
+            min-height: 150px; /* Match approximate height of card */
+            transition: all 0.2s;
         }
-        .add-lesson-btn:hover { border-color: var(--primary); color: var(--primary); }
-
-        /* Topic List */
-        .topics ul { list-style: none; padding: 0; margin-top: 0;}
-        .topics li { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f3f4f6; }
-        .topic-input { display: flex; gap: 5px; margin-top: 10px; }
-        .topic-input input { flex: 1; padding: 6px; border: 1px solid #d1d5db; border-radius: 4px; }
+        .add-lesson-btn:hover { border-color: var(--primary); color: var(--primary); background: #eff6ff; }
     </style>
 </head>
 <body>
@@ -98,7 +95,7 @@
     <header>
         <h1>Miras's Students</h1>
         <div>
-            <span id="status" class="status-bar">Loading data...</span>
+            <span id="status" class="status-bar">Loading...</span>
             <button onclick="addNewStudent()">+ Add Student</button>
         </div>
     </header>
@@ -106,28 +103,48 @@
 </div>
 
 <script>
-    // ▼▼▼▼▼ PASTE YOUR URL HERE AGAIN ▼▼▼▼▼
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxIaCKdjXqS07bEFfyzeFC4luUDveWCD_A_AGmZsHtp9AFNOWuuNbkeaklQ321VJIYz/exec";
+    // ▼▼▼▼▼ PASTE YOUR WEB APP URL HERE ▼▼▼▼▼
+    const GOOGLE_SCRIPT_URL = "PASTE_YOUR_URL_HERE";
     // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
     let students = [];
     let saveTimeout;
 
+    // --- LOAD & MIGRATE DATA ---
     async function loadData() {
         updateStatus("Loading...", "saving");
         try {
             const response = await fetch(GOOGLE_SCRIPT_URL);
             const data = await response.json();
+
             students = data.map(item => {
-                const parsed = JSON.parse(item.json);
+                let parsed = JSON.parse(item.json);
+
+                // MIGRATION LOGIC: Convert old "Arrays" to new "Objects" structure
+                let lessons = [];
+                if (parsed.lessons) {
+                    // Already in new format
+                    lessons = parsed.lessons;
+                } else if (parsed.dates) {
+                    // Convert old format to new format
+                    lessons = parsed.dates.map((dateLabel, index) => ({
+                        label: dateLabel,
+                        attended: parsed.attendance[index] || false,
+                        date: "",      // Empty date for old data
+                        topic: ""      // Empty topic for old data
+                    }));
+                } else {
+                    // Brand new student default
+                    lessons = createDefaultLessons();
+                }
+
                 return {
                     id: parsed.id || Date.now(),
                     name: item.name,
-                    dates: parsed.dates || ["Lesson 1", "Lesson 2"],
-                    attendance: parsed.attendance || [false, false],
-                    topics: parsed.topics || []
+                    lessons: lessons
                 };
             });
+
             render();
             updateStatus("Synced with Sheets", "saved");
         } catch (e) {
@@ -136,21 +153,31 @@
         }
     }
 
+    function createDefaultLessons() {
+        return [1, 2, 3, 4].map(i => ({
+            label: `Lesson ${i}`,
+            attended: false,
+            date: "",
+            topic: ""
+        }));
+    }
+
+    // --- SAVING ---
     function triggerSave() {
         render();
-        updateStatus("Saving changes...", "saving");
+        updateStatus("Saving...", "saving");
         clearTimeout(saveTimeout);
         saveTimeout = setTimeout(saveToGoogleSheets, 2000);
     }
 
     async function saveToGoogleSheets() {
+        // We only save the fields we need
         const payload = students.map(s => ({
             name: s.name,
             id: s.id,
-            dates: s.dates,
-            attendance: s.attendance,
-            topics: s.topics
+            lessons: s.lessons // Saving the new rich object structure
         }));
+
         try {
             await fetch(GOOGLE_SCRIPT_URL, {
                 method: "POST",
@@ -170,15 +197,14 @@
         el.className = `status-bar ${type}`;
     }
 
+    // --- ACTIONS ---
     function addNewStudent() {
         const name = prompt("Student Name:");
         if(!name) return;
         students.push({
             id: Date.now(),
             name: name,
-            dates: ["Lesson 1", "Lesson 2", "Lesson 3", "Lesson 4"],
-            attendance: [false, false, false, false],
-            topics: []
+            lessons: createDefaultLessons()
         });
         triggerSave();
     }
@@ -190,61 +216,70 @@
         }
     }
 
-    function updateHeader(id, index, val) {
-        students.find(s => s.id === id).dates[index] = val;
+    function addLesson(studentId) {
+        const s = students.find(s => s.id === studentId);
+        const nextNum = s.lessons.length + 1;
+        s.lessons.push({
+            label: `Lesson ${nextNum}`,
+            attended: false,
+            date: "",
+            topic: ""
+        });
         triggerSave();
     }
 
-    function toggleAttendance(id, index) {
-        const s = students.find(s => s.id === id);
-        s.attendance[index] = !s.attendance[index];
+    // Unified Update Function for all lesson fields
+    function updateLesson(studentId, index, field, value) {
+        const s = students.find(s => s.id === studentId);
+        s.lessons[index][field] = value;
+
+        // Don't re-render on every keystroke for text inputs (avoids focus loss)
+        // We only trigger save timer
+        updateStatus("Saving...", "saving");
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(saveToGoogleSheets, 2000);
+    }
+
+    // Special wrapper for checkbox to force render (visual feedback)
+    function toggleAttendance(studentId, index) {
+        const s = students.find(s => s.id === studentId);
+        s.lessons[index].attended = !s.lessons[index].attended;
         triggerSave();
     }
 
-    function addColumn(id) {
-        const s = students.find(s => s.id === id);
-        s.dates.push(`Lesson ${s.dates.length + 1}`);
-        s.attendance.push(false);
-        triggerSave();
-    }
-
-    function addTopic(id) {
-        const input = document.getElementById(`input-${id}`);
-        if(input.value) {
-            students.find(s => s.id === id).topics.push(input.value);
-            input.value = "";
-            triggerSave();
-        }
-    }
-
-    function removeTopic(id, idx) {
-        students.find(s => s.id === id).topics.splice(idx, 1);
-        triggerSave();
-    }
-
+    // --- RENDER ---
     function render() {
         const app = document.getElementById('app');
+
+        // We don't wipe innerHTML if we are just typing, but for simplicity we do here.
+        // To fix focus loss on typing, we use 'oninput' in HTML and avoid re-rendering entire list on keypress.
+        // We only re-render on structural changes (add/delete).
+
+        // However, to keep code simple in one file, we will re-render everything,
+        // but inputs use `onchange` (activates when you click away/press enter)
+        // to prevent the annoying "box disappears while typing" bug.
+
         app.innerHTML = "";
 
         students.forEach(s => {
-            // New "Block" builder for attendance
-            let lessonBlocks = s.dates.map((d, i) => `
+            // Build Lesson Boxes
+            let lessonsHtml = s.lessons.map((lesson, i) => `
                 <div class="lesson-unit">
-                    <input type="text" value="${d}" onchange="updateHeader(${s.id}, ${i}, this.value)">
-                    <input type="checkbox" ${s.attendance[i] ? "checked" : ""} onchange="toggleAttendance(${s.id}, ${i})">
+                    <div class="lesson-header">
+                        <input class="lesson-label" value="${lesson.label}"
+                            onchange="updateLesson(${s.id}, ${i}, 'label', this.value)">
+                        <input type="checkbox" class="attendance-check"
+                            ${lesson.attended ? "checked" : ""}
+                            onchange="toggleAttendance(${s.id}, ${i})">
+                    </div>
+                    <div class="lesson-meta">
+                        <input type="date" class="date-input" value="${lesson.date}"
+                            onchange="updateLesson(${s.id}, ${i}, 'date', this.value)">
+                        <input type="text" placeholder="Topic covered..." value="${lesson.topic}"
+                            onchange="updateLesson(${s.id}, ${i}, 'topic', this.value)">
+                    </div>
                 </div>
             `).join("");
-
-            // The "+" button is now part of the grid
-            lessonBlocks += `
-                <div class="add-lesson-btn" onclick="addColumn(${s.id})" title="Add Lesson">
-                    +
-                </div>
-            `;
-
-            let topicList = s.topics.map((t, i) =>
-                `<li>${t} <span style="color:red;cursor:pointer" onclick="removeTopic(${s.id}, ${i})">&times;</span></li>`
-            ).join("");
 
             app.innerHTML += `
             <div class="student-card">
@@ -253,18 +288,10 @@
                     <button class="delete" onclick="deleteStudent(${s.id})">Remove</button>
                 </div>
                 <div class="card-body">
-                    <div>
-                        <h4 style="margin-top:0">Attendance</h4>
-                        <div class="attendance-grid">
-                            ${lessonBlocks}
-                        </div>
-                    </div>
-                    <div class="topics">
-                        <h4 style="margin-top:0">Topics Covered</h4>
-                        <ul>${topicList}</ul>
-                        <div class="topic-input">
-                            <input id="input-${s.id}" placeholder="New topic...">
-                            <button class="small" onclick="addTopic(${s.id})">Add</button>
+                    <div class="attendance-grid">
+                        ${lessonsHtml}
+                        <div class="add-lesson-btn" onclick="addLesson(${s.id})" title="Add Lesson">
+                            +
                         </div>
                     </div>
                 </div>
