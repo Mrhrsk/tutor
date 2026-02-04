@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Miras's Tutor Dashboard</title>
+    <title>Miras's Dashboard</title>
     <style>
         :root { --primary: #2563eb; --bg: #f3f4f6; --card: #ffffff; --text: #1f2937; --border: #e5e7eb; }
         body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 20px; }
@@ -17,13 +17,30 @@
         .saved { color: #059669; }
         .error { color: #dc2626; }
 
-        button { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.2s; }
+        /* Standard Buttons */
+        button { border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.2s; }
         button:hover { opacity: 0.9; transform: translateY(-1px); }
-        button.delete-student { background: #fee2e2; color: #dc2626; padding: 6px 12px; font-size: 0.85rem; }
+        .primary-btn { background: var(--primary); color: white; }
+        .delete-student { background: #fee2e2; color: #dc2626; padding: 6px 12px; font-size: 0.85rem; }
+
+        /* NEW: Meet Button Styles */
+        .meet-wrapper { display: flex; align-items: center; gap: 8px; margin-left: 15px; }
+        .meet-btn {
+            display: flex; align-items: center; gap: 6px;
+            padding: 6px 12px; font-size: 0.9rem; border-radius: 20px; text-decoration: none;
+        }
+        .meet-active { background-color: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
+        .meet-active:hover { background-color: #bfdbfe; }
+        .meet-empty { background-color: #f3f4f6; color: #6b7280; border: 1px dashed #d1d5db; }
+        .meet-edit { cursor: pointer; color: #9ca3af; font-size: 0.8rem; }
+        .meet-edit:hover { color: var(--primary); }
 
         /* Student Card Layout */
         .student-card { background: var(--card); border-radius: 16px; padding: 25px; margin-bottom: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid var(--border); }
+
+        /* Card Header Flexbox */
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
+        .header-left { display: flex; align-items: center; }
         .card-header h3 { margin: 0; font-size: 1.4rem; }
 
         /* Split View: Lessons (Left) | Summary (Right) */
@@ -49,39 +66,27 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
-            position: relative; /* For delete button positioning */
             transition: all 0.2s;
         }
         .lesson-unit:focus-within { border-color: var(--primary); background: white; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1); }
 
-        /* Top Row: Name + Delete */
         .lesson-top { display: flex; justify-content: space-between; align-items: center; gap: 5px;}
-        .lesson-label {
-            font-weight: 700; font-size: 0.85rem; color: #374151; width: 100%; border: none; background: transparent;
-        }
-        .delete-lesson-btn {
-            color: #ef4444; cursor: pointer; font-size: 1.2rem; line-height: 1; padding: 0 4px; border-radius: 4px;
-        }
-        .delete-lesson-btn:hover { background: #fee2e2; }
+        .lesson-label { font-weight: 700; font-size: 0.85rem; color: #374151; width: 100%; border: none; background: transparent; }
+        .delete-lesson-btn { color: #ef4444; cursor: pointer; font-size: 1.2rem; line-height: 1; padding: 0 4px; }
 
-        /* Middle: Status Dropdown */
+        /* Status Dropdown & Colors */
         .status-select {
             width: 100%; padding: 6px; border-radius: 6px; border: 1px solid var(--border);
-            font-size: 0.85rem; font-weight: 600; cursor: pointer; appearance: none;
-            text-align: center;
+            font-size: 0.85rem; font-weight: 600; cursor: pointer; appearance: none; text-align: center;
         }
-        /* Color Coding */
         .status-present { background-color: #dcfce7; color: #166534; border-color: #bbf7d0; }
         .status-late { background-color: #fef9c3; color: #854d0e; border-color: #fde047; }
         .status-canceled { background-color: #ffedd5; color: #9a3412; border-color: #fed7aa; }
         .status-absent { background-color: #fee2e2; color: #991b1b; border-color: #fecaca; }
         .status-none { background-color: white; color: #6b7280; }
 
-        /* Bottom: Inputs */
-        .lesson-meta input {
-            width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 6px;
-            font-size: 0.8rem; margin-top: 4px; box-sizing: border-box;
-        }
+        /* Inputs */
+        .lesson-meta input { width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.8rem; margin-top: 4px; box-sizing: border-box; }
         .lesson-meta input:focus { outline: none; border-color: var(--primary); }
         .date-input { color: #6b7280; font-family: monospace; }
 
@@ -92,16 +97,11 @@
         }
         .add-lesson-btn:hover { border-color: var(--primary); color: var(--primary); background: #eff6ff; }
 
-        /* Right Sidebar: Topics */
-        .summary-panel {
-            background: #f8fafc; border-radius: 12px; padding: 20px; border: 1px solid var(--border); height: fit-content;
-        }
+        /* Right Sidebar */
+        .summary-panel { background: #f8fafc; border-radius: 12px; padding: 20px; border: 1px solid var(--border); height: fit-content; }
         .summary-panel h4 { margin: 0 0 15px 0; color: #475569; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em; }
         .topic-list { list-style: none; padding: 0; margin: 0; }
-        .topic-item {
-            padding: 8px 0; border-bottom: 1px solid #e2e8f0; font-size: 0.9rem; color: #334155;
-            display: flex; gap: 8px; align-items: flex-start;
-        }
+        .topic-item { padding: 8px 0; border-bottom: 1px solid #e2e8f0; font-size: 0.9rem; color: #334155; display: flex; gap: 8px; align-items: flex-start; }
         .topic-item:last-child { border-bottom: none; }
         .topic-bullet { color: var(--primary); font-weight: bold; }
         .empty-topics { color: #94a3b8; font-style: italic; font-size: 0.85rem; }
@@ -115,16 +115,16 @@
         <h1>Miras's Dashboard</h1>
         <div>
             <span id="status" class="status-bar">Loading...</span>
-            <button onclick="addNewStudent()">+ Add Student</button>
+            <button class="primary-btn" onclick="addNewStudent()">+ Add Student</button>
         </div>
     </header>
     <div id="app"></div>
 </div>
 
 <script>
-    // ▼▼▼▼▼ PASTE YOUR URL HERE ▼▼▼▼▼
+    // ▼▼▼▼▼ PASTE YOUR FULL GOOGLE SCRIPT URL HERE ▼▼▼▼▼
     const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxIaCKdjXqS07bEFfyzeFC4luUDveWCD_A_AGmZsHtp9AFNOWuuNbkeaklQ321VJIYz/exec";
-    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
 
     let students = [];
     let saveTimeout;
@@ -138,31 +138,13 @@
 
             students = data.map(item => {
                 let parsed = JSON.parse(item.json);
-                let lessons = [];
-
-                // MIGRATION: Handle different versions of data
-                if (parsed.lessons) {
-                    // Newest format
-                    lessons = parsed.lessons.map(l => ({
-                        ...l,
-                        // Ensure 'status' exists. If old 'attended' bool exists, convert it.
-                        status: l.status || (l.attended === true ? 'present' : (l.attended === false ? 'absent' : ''))
-                    }));
-                } else if (parsed.dates) {
-                    // Old format migration
-                    lessons = parsed.dates.map((dateLabel, index) => ({
-                        label: dateLabel,
-                        status: parsed.attendance[index] ? 'present' : '',
-                        date: "",
-                        topic: ""
-                    }));
-                } else {
-                    lessons = createDefaultLessons();
-                }
+                // Ensure lessons exist or migrate old data
+                let lessons = parsed.lessons || createDefaultLessons();
 
                 return {
                     id: parsed.id || Date.now(),
                     name: item.name,
+                    meetLink: parsed.meetLink || "", // Load link if exists
                     lessons: lessons
                 };
             });
@@ -176,12 +158,7 @@
     }
 
     function createDefaultLessons() {
-        return [1, 2, 3, 4].map(i => ({
-            label: `Lesson ${i}`,
-            status: "", // present, late, canceled, absent
-            date: "",
-            topic: ""
-        }));
+        return [1, 2, 3, 4].map(i => ({ label: `Lesson ${i}`, status: "", date: "", topic: "" }));
     }
 
     // --- SAVING ---
@@ -196,6 +173,7 @@
         const payload = students.map(s => ({
             name: s.name,
             id: s.id,
+            meetLink: s.meetLink, // Save link to backend
             lessons: s.lessons
         }));
 
@@ -222,13 +200,27 @@
     function addNewStudent() {
         const name = prompt("Student Name:");
         if(!name) return;
-        students.push({ id: Date.now(), name: name, lessons: createDefaultLessons() });
+        students.push({ id: Date.now(), name: name, meetLink: "", lessons: createDefaultLessons() });
         triggerSave();
     }
 
     function deleteStudent(id) {
         if(confirm("Delete this student?")) {
             students = students.filter(s => s.id !== id);
+            triggerSave();
+        }
+    }
+
+    // Meet Link Logic
+    function editMeetLink(id) {
+        const s = students.find(s => s.id === id);
+        let link = prompt(`Paste Google Meet link for ${s.name}:`, s.meetLink);
+        if (link !== null) {
+            // Basic cleanup to ensure link works
+            link = link.trim();
+            if(link && !link.startsWith('http')) link = 'https://' + link;
+
+            s.meetLink = link;
             triggerSave();
         }
     }
@@ -250,16 +242,12 @@
     function updateLesson(studentId, index, field, value) {
         const s = students.find(s => s.id === studentId);
         s.lessons[index][field] = value;
-
-        // If updating text inputs, just reset timer, don't re-render entire app (prevents focus loss)
         if(field === 'status' || field === 'label') {
             triggerSave();
         } else {
-            // Background save for text/date
             updateStatus("Saving...", "saving");
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(saveToGoogleSheets, 2000);
-            // We manually update the topic list DOM if topic changed, to avoid full re-render
             if(field === 'topic') updateTopicListDOM(s);
         }
     }
@@ -274,20 +262,16 @@
     }
 
     function updateTopicListDOM(student) {
-        // Find the specific summary panel for this student and update just that bit
         const container = document.getElementById(`topic-container-${student.id}`);
         if(container) container.innerHTML = generateTopicHTML(student);
     }
 
     function generateTopicHTML(student) {
-        // Extract, Filter, Sort Topics
         const topics = student.lessons
             .map(l => l.topic.trim())
             .filter(t => t.length > 0)
             .sort((a, b) => a.localeCompare(b));
-
         if (topics.length === 0) return '<div class="empty-topics">No topics recorded yet.</div>';
-
         return `<ul class="topic-list">` +
             topics.map(t => `<li class="topic-item"><span class="topic-bullet">•</span> ${t}</li>`).join('') +
             `</ul>`;
@@ -307,16 +291,14 @@
                             onchange="updateLesson(${s.id}, ${i}, 'label', this.value)">
                         <span class="delete-lesson-btn" onclick="removeLesson(${s.id}, ${i})">&times;</span>
                     </div>
-
                     <select class="status-select ${getStatusClass(lesson.status)}"
                         onchange="updateLesson(${s.id}, ${i}, 'status', this.value)">
                         <option value="" ${lesson.status===''?'selected':''}>Select Status</option>
-                        <option value="present" ${lesson.status==='present'?'selected':''}>Attended (Green)</option>
-                        <option value="late" ${lesson.status==='late'?'selected':''}>Late (Yellow)</option>
-                        <option value="canceled" ${lesson.status==='canceled'?'selected':''}>Canceled (Orange)</option>
-                        <option value="absent" ${lesson.status==='absent'?'selected':''}>Absent (Red)</option>
+                        <option value="present" ${lesson.status==='present'?'selected':''}>Attended</option>
+                        <option value="late" ${lesson.status==='late'?'selected':''}>Late</option>
+                        <option value="canceled" ${lesson.status==='canceled'?'selected':''}>Canceled</option>
+                        <option value="absent" ${lesson.status==='absent'?'selected':''}>Absent</option>
                     </select>
-
                     <div class="lesson-meta">
                         <input type="date" class="date-input" value="${lesson.date}"
                             onchange="updateLesson(${s.id}, ${i}, 'date', this.value)">
@@ -326,10 +308,32 @@
                 </div>
             `).join("");
 
+            // Meet Button Logic
+            let meetBtnHtml = '';
+            if (s.meetLink) {
+                meetBtnHtml = `
+                    <div class="meet-wrapper">
+                        <button class="meet-btn meet-active" onclick="window.open('${s.meetLink}', '_blank')">
+                            📹 Join Class
+                        </button>
+                        <span class="meet-edit" onclick="editMeetLink(${s.id})" title="Edit Link">✎</span>
+                    </div>`;
+            } else {
+                meetBtnHtml = `
+                    <div class="meet-wrapper">
+                        <button class="meet-btn meet-empty" onclick="editMeetLink(${s.id})">
+                            ➕ Add Meet Link
+                        </button>
+                    </div>`;
+            }
+
             app.innerHTML += `
             <div class="student-card">
                 <div class="card-header">
-                    <h3>${s.name}</h3>
+                    <div class="header-left">
+                        <h3>${s.name}</h3>
+                        ${meetBtnHtml}
+                    </div>
                     <button class="delete-student" onclick="deleteStudent(${s.id})">Delete Student</button>
                 </div>
                 <div class="card-body">
