@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tutor Portal v2</title>
+    <title>Tutor Portal v3 - AI Edition</title>
     <style>
         :root { --primary: #2563eb; --bg: #f3f4f6; --card: #ffffff; --text: #1f2937; --border: #e5e7eb; }
         body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 20px; }
@@ -19,6 +19,7 @@
         button:hover { opacity: 0.9; transform: translateY(-1px); }
         .primary-btn { background: var(--primary); color: white; }
         .report-btn { background: #7c3aed; color: white; margin-left: 10px; display: flex; align-items: center; gap: 5px; }
+        .ai-btn { background: #0f172a; color: #38bdf8; font-weight: bold; width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #38bdf8; }
         .delete-student { background: #fee2e2; color: #dc2626; font-size: 0.85rem; }
 
         /* Student Card */
@@ -27,22 +28,23 @@
         .header-left { display: flex; align-items: center; gap: 10px; }
 
         /* Grid Layout */
-        .attendance-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; }
+        .attendance-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 15px; }
 
         /* Enhanced Lesson Unit */
-        .lesson-unit { border: 1px solid var(--border); border-radius: 10px; padding: 12px; background: #f9fafb; display: flex; flex-direction: column; gap: 8px; position: relative; }
+        .lesson-unit { border: 1px solid var(--border); border-radius: 10px; padding: 12px; background: #f9fafb; display: flex; flex-direction: column; gap: 8px; }
 
         .lesson-top { display: flex; justify-content: space-between; align-items: center; }
         .lesson-label { font-weight: 700; font-size: 0.9rem; color: #374151; width: 60%; border: none; background: transparent; }
         .delete-lesson-btn { color: #ef4444; cursor: pointer; font-size: 1.2rem; }
 
         .row { display: flex; gap: 8px; }
-        input, select, textarea { width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.8rem; box-sizing: border-box; }
-        textarea { resize: vertical; min-height: 40px; font-family: inherit; }
+        input, select, textarea { width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.85rem; box-sizing: border-box; }
+        textarea { resize: vertical; min-height: 50px; font-family: inherit; }
 
         /* Specific Input Styles */
-        .input-grammar { border-color: #bfdbfe; background: #eff6ff; } /* Blue tint for Grammar */
-        .input-vocab { border-color: #bbf7d0; background: #f0fdf4; } /* Green tint for Vocab */
+        .input-grammar { border-color: #bfdbfe; background: #eff6ff; }
+        .input-vocab { border-color: #bbf7d0; background: #f0fdf4; }
+        .input-note { background: #fffbeb; border-color: #fcd34d; }
 
         .status-select { font-weight: 600; text-align: center; }
         .status-present { background-color: #dcfce7; color: #166534; }
@@ -50,22 +52,20 @@
         .status-canceled { background-color: #ffedd5; color: #9a3412; }
         .status-absent { background-color: #fee2e2; color: #991b1b; }
 
-        .add-lesson-btn { border: 2px dashed var(--border); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #9ca3af; font-size: 2rem; cursor: pointer; min-height: 250px; }
+        .add-lesson-btn { border: 2px dashed var(--border); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #9ca3af; font-size: 2rem; cursor: pointer; min-height: 350px; }
         .add-lesson-btn:hover { border-color: var(--primary); color: var(--primary); background: #eff6ff; }
 
         /* REPORT MODAL STYLES */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
-        .modal { background: white; width: 90%; max-width: 600px; max-height: 90vh; border-radius: 12px; display: flex; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        .modal { background: white; width: 95%; max-width: 800px; height: 90vh; border-radius: 12px; display: flex; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
         .modal-header { padding: 20px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; }
-        .modal-body { padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .modal-body { padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; flex-grow: 1; }
         .modal-footer { padding: 20px; border-top: 1px solid #e5e7eb; display: flex; justify-content: flex-end; gap: 10px; }
 
-        .report-section { border: 1px solid #e5e7eb; padding: 10px; border-radius: 8px; background: #f9fafb; }
-        .report-label { font-weight: bold; font-size: 0.85rem; color: #4b5563; margin-bottom: 5px; display: block; }
-        .report-textarea { width: 100%; min-height: 60px; font-size: 0.9rem; }
-        .auto-filled { background-color: #e5e7eb; color: #374151; cursor: not-allowed; }
-
-        .notes-preview { font-size: 0.8rem; color: #6b7280; font-style: italic; margin-bottom: 5px; padding: 5px; background: #fff; border: 1px dashed #d1d5db; border-radius: 4px;}
+        .ai-result-area { width: 100%; height: 350px; font-family: monospace; font-size: 0.9rem; padding: 15px; background: #f8fafc; border: 1px solid #cbd5e1; white-space: pre-wrap; }
+        .api-key-container { background: #f1f5f9; padding: 10px; border-radius: 8px; display: flex; gap: 10px; align-items: center; }
+        .loader { border: 3px solid #f3f3f3; border-top: 3px solid #38bdf8; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; display: none; margin: 0 auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
     </style>
 </head>
@@ -94,63 +94,29 @@
             <span style="cursor:pointer; font-size:1.5rem;" onclick="closeModal()">&times;</span>
         </div>
         <div class="modal-body">
-            <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
-                <label>Month:</label>
-                <input type="month" id="reportMonth" onchange="refreshReportData()">
+
+            <div style="display:flex; justify-content: space-between; align-items:center;">
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <label style="font-weight:bold;">Month:</label>
+                    <input type="month" id="reportMonth" style="width: auto;">
+                </div>
+                <div class="api-key-container">
+                    <label style="font-size: 0.8rem; color: #475569;">Gemini API Key:</label>
+                    <input type="password" id="geminiApiKey" placeholder="AIzaSy..." style="width: 200px; padding: 4px;">
+                </div>
             </div>
 
             <input type="hidden" id="currentReportStudentId">
 
-            <div>
-                <label class="report-label">1. Lesson Dates (Auto)</label>
-                <input id="rep-dates" class="auto-filled" readonly>
-            </div>
+            <button class="ai-btn" onclick="generateWithAI()">✨ Generate Report with AI</button>
+            <div id="aiLoader" class="loader"></div>
 
-            <div class="row">
-                <div style="flex:1">
-                    <label class="report-label">2. Grammar Topics</label>
-                    <textarea id="rep-grammar" class="report-textarea"></textarea>
-                </div>
-                <div style="flex:1">
-                    <label class="report-label">3. Vocab Topics</label>
-                    <textarea id="rep-vocab" class="report-textarea"></textarea>
-                </div>
-            </div>
+            <label style="font-weight: bold; margin-top: 10px;">Final Report Text:</label>
+            <textarea id="ai-final-report" class="ai-result-area" placeholder="The generated report will appear here. You can edit it manually before copying."></textarea>
 
-            <div>
-                <label class="report-label">4. Speaking Feedback</label>
-                <div id="notes-speaking" class="notes-preview">Your notes will appear here...</div>
-                <textarea id="rep-speaking" class="report-textarea" placeholder="Write feedback..."></textarea>
-            </div>
-
-            <div>
-                <label class="report-label">5. Text/Writing Improvement</label>
-                <textarea id="rep-writing" class="report-textarea" placeholder="Write feedback..."></textarea>
-            </div>
-
-            <div>
-                <label class="report-label">6. 5 Improvements</label>
-                <div id="notes-general" class="notes-preview">Your notes will appear here...</div>
-                <textarea id="rep-improvements" class="report-textarea" placeholder="List 5 improvements..."></textarea>
-            </div>
-
-            <div>
-                <label class="report-label">7. Homework & Attendance (Auto)</label>
-                <input id="rep-hw" class="auto-filled" readonly>
-            </div>
-
-            <div>
-                <label class="report-label">8. Confidence Level</label>
-                <textarea id="rep-confidence" class="report-textarea" placeholder="e.g. Student is more confident in..."></textarea>
-            </div>
-
-            <div>
-                <label class="report-label">9. Student Quotes</label>
-                <textarea id="rep-quotes" class="report-textarea"></textarea>
-            </div>
         </div>
         <div class="modal-footer">
-            <button onclick="closeModal()" style="background:#e5e7eb; color:#374151;">Cancel</button>
+            <button onclick="closeModal()" style="background:#e5e7eb; color:#374151;">Close</button>
             <button onclick="copyReport()" class="primary-btn" style="background:#059669;">📋 Copy for WhatsApp</button>
         </div>
     </div>
@@ -166,6 +132,10 @@
     // --- INITIALIZATION ---
     async function loadData() {
         updateStatus("Loading...", "saving");
+        // Load API key from local storage
+        const savedKey = localStorage.getItem('geminiApiKey');
+        if (savedKey) document.getElementById('geminiApiKey').value = savedKey;
+
         try {
             const response = await fetch(GOOGLE_SCRIPT_URL);
             const data = await response.json();
@@ -189,12 +159,12 @@
     }
 
     function createDefaultLessons() {
-        // Updated structure for new requirements
         return [1, 2, 3, 4].map(i => ({
             label: `Lesson ${i}`,
             status: "", date: "",
-            grammar: "", vocab: "", // Split topics
-            hw: "", quote: "", note: "" // New fields
+            majorTopic: "", minorTopic: "", // New split topics
+            grammar: "", vocab: "",
+            hw: "", quote: "", note: ""
         }));
     }
 
@@ -228,7 +198,7 @@
 
     // --- SAVE LOGIC ---
     function triggerSave() {
-        render(); // Optimistic
+        render();
         updateStatus("Saving...", "saving");
         clearTimeout(saveTimeout);
         saveTimeout = setTimeout(saveToGoogleSheets, 2000);
@@ -266,7 +236,7 @@
 
     function addLesson(id) {
         const s = allStudents.find(s => s.id === id);
-        s.lessons.push({ label: `Lesson ${s.lessons.length + 1}`, status: "", date: "", grammar:"", vocab:"", hw:"", quote:"", note:"" });
+        s.lessons.push({ label: `Lesson ${s.lessons.length + 1}`, status: "", date: "", majorTopic: "", minorTopic: "", grammar:"", vocab:"", hw:"", quote:"", note:"" });
         triggerSave();
     }
 
@@ -277,8 +247,8 @@
     function updateLesson(id, idx, field, val) {
         const s = allStudents.find(s => s.id === id);
         s.lessons[idx][field] = val;
-        // Don't re-render on text input to keep focus, just queue save
-        if(field !== 'status' && field !== 'hw') {
+        // Don't re-render on text input to keep focus
+        if(!['status', 'hw', 'date'].includes(field)) {
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(saveToGoogleSheets, 2000);
             updateStatus("Saving...", "saving");
@@ -293,28 +263,28 @@
         if (link !== null) { s.meetLink = link.trim(); triggerSave(); }
     }
 
-    // --- REPORT GENERATOR ---
+    // --- AI REPORT GENERATOR ---
     function openReportModal(studentId) {
         document.getElementById('currentReportStudentId').value = studentId;
-        // Default to current month
         const now = new Date();
-        const monthStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
-        document.getElementById('reportMonth').value = monthStr;
-
-        refreshReportData();
+        document.getElementById('reportMonth').value = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+        document.getElementById('ai-final-report').value = '';
         document.getElementById('reportModal').style.display = 'flex';
     }
 
     function closeModal() { document.getElementById('reportModal').style.display = 'none'; }
 
-    function refreshReportData() {
-        const studentId = parseInt(document.getElementById('currentReportStudentId').value);
-        const monthInput = document.getElementById('reportMonth').value; // "YYYY-MM"
-        const student = allStudents.find(s => s.id === studentId);
+    async function generateWithAI() {
+        const apiKey = document.getElementById('geminiApiKey').value.trim();
+        if (!apiKey) { alert("Please enter your Gemini API Key."); return; }
+        localStorage.setItem('geminiApiKey', apiKey);
 
+        const studentId = parseInt(document.getElementById('currentReportStudentId').value);
+        const monthInput = document.getElementById('reportMonth').value;
+        const student = allStudents.find(s => s.id === studentId);
         if (!student || !monthInput) return;
 
-        // Filter lessons for this month
+        // Filter lessons
         const [year, month] = monthInput.split('-');
         const monthLessons = student.lessons.filter(l => {
             if (!l.date) return false;
@@ -322,54 +292,87 @@
             return d.getFullYear() == year && (d.getMonth() + 1) == month;
         });
 
-        // 1. Dates
-        const attended = monthLessons.filter(l => l.status === 'present');
-        const dateStr = attended.map(l => {
-            const d = new Date(l.date);
-            return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
-        }).join(', ');
-        document.getElementById('rep-dates').value = dateStr || "No attended lessons";
+        if (monthLessons.length === 0) {
+            alert("No lessons found for this month.");
+            return;
+        }
 
-        // 2 & 3 Topics
-        document.getElementById('rep-grammar').value = monthLessons.map(l => l.grammar).filter(t => t).join(', ');
-        document.getElementById('rep-vocab').value = monthLessons.map(l => l.vocab).filter(t => t).join(', ');
-
-        // 7. HW & Attendance
+        // Calculate Stats for the AI
+        const hwTotal = monthLessons.filter(l => l.hw).length;
         const hwDone = monthLessons.filter(l => l.hw === 'done').length;
-        const hwTotal = monthLessons.filter(l => l.hw).length; // Only count if assigned
         const hwPerc = hwTotal > 0 ? Math.round((hwDone / hwTotal) * 100) : 0;
-
         const attTotal = monthLessons.filter(l => l.status === 'present' || l.status === 'absent' || l.status === 'late').length;
         const attPres = monthLessons.filter(l => l.status === 'present' || l.status === 'late').length;
         const attPerc = attTotal > 0 ? Math.round((attPres / attTotal) * 100) : 0;
 
-        document.getElementById('rep-hw').value = `HW: ${hwPerc}% completed. Attendance: ${attPerc}%`;
+        // Build Raw Data String
+        const rawData = monthLessons.map(l => `
+Lesson Date: ${l.date}
+Status: ${l.status}
+Major Topic: ${l.majorTopic || 'N/A'}
+Minor Topic: ${l.minorTopic || 'N/A'}
+Grammar Covered: ${l.grammar || 'N/A'}
+Vocabulary Taught: ${l.vocab || 'N/A'}
+Homework Status: ${l.hw || 'N/A'}
+Student Quote: ${l.quote || 'None'}
+Tutor's Private Notes: ${l.note || 'None'}
+        `).join('\n---\n');
 
-        // 9. Quotes
-        document.getElementById('rep-quotes').value = monthLessons.map(l => l.quote ? `"${l.quote}"` : '').filter(q => q).join('\n');
+        const systemPrompt = `
+You are an expert English tutor assistant. Your task is to analyze the raw lesson data for a student and write a final monthly progress report strictly in Russian.
 
-        // Helper Notes for Subjective fields
-        const notes = monthLessons.map(l => l.note).filter(n => n).join(' | ');
-        document.getElementById('notes-speaking').innerText = notes ? `Notes from lessons: ${notes}` : "No private notes recorded for this month.";
-        document.getElementById('notes-general').innerText = notes ? `Notes from lessons: ${notes}` : "No private notes recorded for this month.";
+Here is the calculated data:
+Homework Completion: ${hwPerc}%
+Attendance: ${attPerc}%
+
+Here is the raw lesson data:
+${rawData}
+
+Write the report EXACTLY in the following format (numbered 1 to 9, plain text, no markdown bolding on the numbers). Infer the subjective elements (feedback, improvements, confidence) intelligently based on the Tutor's Private Notes and Topics.
+
+1. Дни проведенных уроков: [List the dates of 'present' or 'late' lessons, e.g., 05/02, 12/02]
+2. Список грамматических тем: [Summarize the grammar taught]
+3. Список тем по вокабуляру: [Summarize the vocabulary topics and key words]
+4. Обратная связь по спикингу: [Write a thoughtful evaluation of their speaking based on the Private Notes]
+5. По улучшению текста: [Write an evaluation on reading/writing comprehension based on Notes/Topics]
+6. 5 любые улучшения: [List exactly 5 specific areas the student improved in]
+7. По дз выполняемость и посещаемость: [State the HW completion percentage and Attendance percentage clearly]
+8. Уверенность: [Describe the student's confidence level based on Notes and Quotes]
+9. Комментарии самого клиента: [Include any direct student quotes. If none, say "Нет комментариев"]
+
+Keep the tone highly professional, encouraging, and ready to be sent to a language school manager via WhatsApp.
+`;
+
+        document.getElementById('aiLoader').style.display = 'block';
+        document.getElementById('ai-final-report').value = 'Analyzing data and generating report...';
+
+        try {
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: systemPrompt }] }],
+                    generationConfig: { temperature: 0.7 }
+                })
+            });
+
+            const aiData = await response.json();
+            if (aiData.error) throw new Error(aiData.error.message);
+
+            const text = aiData.candidates[0].content.parts[0].text;
+            document.getElementById('ai-final-report').value = text;
+        } catch (error) {
+            alert("Error connecting to Gemini API: " + error.message);
+            document.getElementById('ai-final-report').value = '';
+        } finally {
+            document.getElementById('aiLoader').style.display = 'none';
+        }
     }
 
     function copyReport() {
-        const v = (id) => document.getElementById(id).value;
-        const report =
-            `ОТЧЕТ ежемесячный
-1. Дни проведенных уроков: ${v('rep-dates')}
-2. Список грамматических тем: ${v('rep-grammar')}
-3. Список тем по вокабуляру: ${v('rep-vocab')}
-4. Обратная связь по спикингу: ${v('rep-speaking')}
-5. По улучшению текста: ${v('rep-writing')}
-6. 5 любые улучшения: ${v('rep-improvements')}
-7. По дз выполняемость и посещаемость: ${v('rep-hw')}
-8. Уверенность: ${v('rep-confidence')}
-9. Комментарии самого клиента:
-${v('rep-quotes')}`;
-
-        navigator.clipboard.writeText(report).then(() => alert("Report copied to clipboard!"));
+        const text = document.getElementById('ai-final-report').value;
+        if (!text) { alert("Generate a report first!"); return; }
+        navigator.clipboard.writeText(text).then(() => alert("Report copied to WhatsApp format!"));
     }
 
     // --- RENDER ---
@@ -404,14 +407,15 @@ ${v('rep-quotes')}`;
                     </div>
 
                     <div class="row">
-                        <input class="input-grammar" placeholder="Grammar..." value="${l.grammar||''}" oninput="updateLesson(${s.id}, ${i}, 'grammar', this.value)">
-                    </div>
-                    <div class="row">
-                        <input class="input-vocab" placeholder="Vocab..." value="${l.vocab||''}" oninput="updateLesson(${s.id}, ${i}, 'vocab', this.value)">
+                        <input placeholder="Major Topic (e.g. Digital Life)" value="${l.majorTopic||''}" oninput="updateLesson(${s.id}, ${i}, 'majorTopic', this.value)" style="flex:1">
+                        <input placeholder="Minor Topic (e.g. Social Media)" value="${l.minorTopic||''}" oninput="updateLesson(${s.id}, ${i}, 'minorTopic', this.value)" style="flex:1">
                     </div>
 
+                    <textarea class="input-grammar" placeholder="Grammar rules covered..." oninput="updateLesson(${s.id}, ${i}, 'grammar', this.value)">${l.grammar||''}</textarea>
+                    <textarea class="input-vocab" placeholder="Vocabulary list (full words)..." oninput="updateLesson(${s.id}, ${i}, 'vocab', this.value)">${l.vocab||''}</textarea>
+
                     <div class="row">
-                        <select onchange="updateLesson(${s.id}, ${i}, 'hw', this.value)" style="flex:1; font-size:0.8rem;">
+                        <select onchange="updateLesson(${s.id}, ${i}, 'hw', this.value)" style="flex:1;">
                             <option value="" ${!l.hw?'selected':''}>HW Status...</option>
                             <option value="done" ${l.hw==='done'?'selected':''}>✅ HW Done</option>
                             <option value="partial" ${l.hw==='partial'?'selected':''}>⚠️ Partial</option>
@@ -419,8 +423,8 @@ ${v('rep-quotes')}`;
                         </select>
                     </div>
 
-                    <textarea placeholder="Student quote..." oninput="updateLesson(${s.id}, ${i}, 'quote', this.value)" style="height:40px">${l.quote||''}</textarea>
-                    <textarea placeholder="Private note (for report)..." oninput="updateLesson(${s.id}, ${i}, 'note', this.value)" style="height:40px; background:#fffbeb; border-color:#fcd34d;">${l.note||''}</textarea>
+                    <textarea placeholder="Student quote..." oninput="updateLesson(${s.id}, ${i}, 'quote', this.value)" style="height:45px">${l.quote||''}</textarea>
+                    <textarea class="input-note" placeholder="Private note (for AI report)..." oninput="updateLesson(${s.id}, ${i}, 'note', this.value)" style="height:60px">${l.note||''}</textarea>
                 </div>
             `).join("");
 
@@ -434,7 +438,7 @@ ${v('rep-quotes')}`;
                     <div class="header-left">
                         <h3 style="margin:0">${s.name}</h3>
                         ${meetBtn}
-                        <button class="report-btn" onclick="openReportModal(${s.id})">📄 Report</button>
+                        <button class="report-btn" onclick="openReportModal(${s.id})">✨ Create AI Report</button>
                     </div>
                     <button class="delete-student" onclick="deleteStudent(${s.id})">Delete</button>
                 </div>
