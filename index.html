@@ -3,82 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tutor Portal</title>
+    <title>Tutor Portal v2</title>
     <style>
         :root { --primary: #2563eb; --bg: #f3f4f6; --card: #ffffff; --text: #1f2937; --border: #e5e7eb; }
         body { font-family: system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
+        .container { max-width: 1400px; margin: 0 auto; }
 
-        /* Header Flexbox */
+        /* Header */
         header { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 25px; gap: 15px; }
-
-        /* TUTOR SELECTOR STYLES */
         .tutor-branding { display: flex; align-items: center; gap: 10px; }
-        .tutor-select-wrapper { position: relative; }
-        .tutor-select {
-            font-size: 1.5rem; font-weight: 800; color: #111827;
-            border: none; background: transparent; cursor: pointer;
-            border-bottom: 2px dashed #9ca3af; padding-right: 20px;
-            appearance: none; -webkit-appearance: none;
-        }
-        .tutor-select:focus { outline: none; border-bottom-color: var(--primary); color: var(--primary); }
-        .tutor-arrow { pointer-events: none; position: absolute; right: 0; top: 10px; font-size: 0.8rem; color: #6b7280; }
-
-        .status-bar { font-size: 0.9rem; margin-right: 15px; font-weight: 600; }
-        .saving { color: #d97706; }
-        .saved { color: #059669; }
-        .error { color: #dc2626; }
+        .tutor-select { font-size: 1.5rem; font-weight: 800; border: none; background: transparent; cursor: pointer; border-bottom: 2px dashed #9ca3af; }
 
         /* Buttons */
-        button { border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.2s; }
+        button { border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500; transition: all 0.2s; }
         button:hover { opacity: 0.9; transform: translateY(-1px); }
         .primary-btn { background: var(--primary); color: white; }
-        .delete-student { background: #fee2e2; color: #dc2626; padding: 6px 12px; font-size: 0.85rem; }
-
-        /* Meet Button */
-        .meet-wrapper { display: flex; align-items: center; gap: 8px; margin-left: 15px; }
-        .meet-btn { display: flex; align-items: center; gap: 6px; padding: 6px 12px; font-size: 0.9rem; border-radius: 20px; text-decoration: none; }
-        .meet-active { background-color: #dbeafe; color: #1e40af; border: 1px solid #bfdbfe; }
-        .meet-empty { background-color: #f3f4f6; color: #6b7280; border: 1px dashed #d1d5db; }
-        .meet-edit { cursor: pointer; color: #9ca3af; font-size: 0.8rem; }
+        .report-btn { background: #7c3aed; color: white; margin-left: 10px; display: flex; align-items: center; gap: 5px; }
+        .delete-student { background: #fee2e2; color: #dc2626; font-size: 0.85rem; }
 
         /* Student Card */
         .student-card { background: var(--card); border-radius: 16px; padding: 25px; margin-bottom: 25px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); border: 1px solid var(--border); }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--border); }
-        .header-left { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
-        .card-header h3 { margin: 0; font-size: 1.4rem; }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+        .header-left { display: flex; align-items: center; gap: 10px; }
 
-        .card-body { display: grid; grid-template-columns: 3fr 1fr; gap: 30px; }
-        @media (max-width: 1000px) { .card-body { grid-template-columns: 1fr; } }
+        /* Grid Layout */
+        .attendance-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; }
 
-        /* Grid & Lessons */
-        .attendance-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
-        @media (max-width: 1200px) { .attendance-grid { grid-template-columns: repeat(3, 1fr); } }
-        @media (max-width: 700px) { .attendance-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 500px) { .attendance-grid { grid-template-columns: 1fr; } }
+        /* Enhanced Lesson Unit */
+        .lesson-unit { border: 1px solid var(--border); border-radius: 10px; padding: 12px; background: #f9fafb; display: flex; flex-direction: column; gap: 8px; position: relative; }
 
-        .lesson-unit { border: 1px solid var(--border); border-radius: 10px; padding: 10px; background: #f9fafb; display: flex; flex-direction: column; gap: 8px; }
-        .lesson-top { display: flex; justify-content: space-between; align-items: center; gap: 5px;}
-        .lesson-label { font-weight: 700; font-size: 0.85rem; color: #374151; width: 100%; border: none; background: transparent; }
+        .lesson-top { display: flex; justify-content: space-between; align-items: center; }
+        .lesson-label { font-weight: 700; font-size: 0.9rem; color: #374151; width: 60%; border: none; background: transparent; }
         .delete-lesson-btn { color: #ef4444; cursor: pointer; font-size: 1.2rem; }
 
-        .status-select { width: 100%; padding: 6px; border-radius: 6px; border: 1px solid var(--border); font-size: 0.85rem; font-weight: 600; text-align: center; }
-        .status-present { background-color: #dcfce7; color: #166534; border-color: #bbf7d0; }
-        .status-late { background-color: #fef9c3; color: #854d0e; border-color: #fde047; }
-        .status-canceled { background-color: #ffedd5; color: #9a3412; border-color: #fed7aa; }
-        .status-absent { background-color: #fee2e2; color: #991b1b; border-color: #fecaca; }
-        .status-none { background-color: white; color: #6b7280; }
+        .row { display: flex; gap: 8px; }
+        input, select, textarea { width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.8rem; box-sizing: border-box; }
+        textarea { resize: vertical; min-height: 40px; font-family: inherit; }
 
-        .lesson-meta input { width: 100%; padding: 6px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.8rem; margin-top: 4px; box-sizing: border-box; }
-        .add-lesson-btn { border: 2px dashed var(--border); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #9ca3af; font-size: 2rem; cursor: pointer; min-height: 150px; }
+        /* Specific Input Styles */
+        .input-grammar { border-color: #bfdbfe; background: #eff6ff; } /* Blue tint for Grammar */
+        .input-vocab { border-color: #bbf7d0; background: #f0fdf4; } /* Green tint for Vocab */
+
+        .status-select { font-weight: 600; text-align: center; }
+        .status-present { background-color: #dcfce7; color: #166534; }
+        .status-late { background-color: #fef9c3; color: #854d0e; }
+        .status-canceled { background-color: #ffedd5; color: #9a3412; }
+        .status-absent { background-color: #fee2e2; color: #991b1b; }
+
+        .add-lesson-btn { border: 2px dashed var(--border); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #9ca3af; font-size: 2rem; cursor: pointer; min-height: 250px; }
         .add-lesson-btn:hover { border-color: var(--primary); color: var(--primary); background: #eff6ff; }
 
-        .summary-panel { background: #f8fafc; border-radius: 12px; padding: 20px; border: 1px solid var(--border); height: fit-content; }
-        .topic-list { list-style: none; padding: 0; margin: 0; }
-        .topic-item { padding: 8px 0; border-bottom: 1px solid #e2e8f0; font-size: 0.9rem; color: #334155; display: flex; gap: 8px; }
-        .topic-bullet { color: var(--primary); font-weight: bold; }
+        /* REPORT MODAL STYLES */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal { background: white; width: 90%; max-width: 600px; max-height: 90vh; border-radius: 12px; display: flex; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        .modal-header { padding: 20px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .modal-footer { padding: 20px; border-top: 1px solid #e5e7eb; display: flex; justify-content: flex-end; gap: 10px; }
 
-        .welcome-screen { text-align: center; margin-top: 50px; color: #6b7280; }
+        .report-section { border: 1px solid #e5e7eb; padding: 10px; border-radius: 8px; background: #f9fafb; }
+        .report-label { font-weight: bold; font-size: 0.85rem; color: #4b5563; margin-bottom: 5px; display: block; }
+        .report-textarea { width: 100%; min-height: 60px; font-size: 0.9rem; }
+        .auto-filled { background-color: #e5e7eb; color: #374151; cursor: not-allowed; }
+
+        .notes-preview { font-size: 0.8rem; color: #6b7280; font-style: italic; margin-bottom: 5px; padding: 5px; background: #fff; border: 1px dashed #d1d5db; border-radius: 4px;}
+
     </style>
 </head>
 <body>
@@ -86,17 +74,12 @@
 <div class="container">
     <header>
         <div class="tutor-branding">
-            <div class="tutor-select-wrapper">
-                <select id="tutorSelect" class="tutor-select" onchange="switchTutor(this.value)">
-                    <option value="" disabled selected>Select Tutor...</option>
-                </select>
-                <span class="tutor-arrow">▼</span>
-            </div>
-            <h1 style="font-size: 1.5rem; margin:0;">'s Students</h1>
+            <select id="tutorSelect" class="tutor-select" onchange="switchTutor(this.value)">
+                <option value="" disabled selected>Select Tutor...</option>
+            </select>
         </div>
-
         <div>
-            <span id="status" class="status-bar">Loading...</span>
+            <span id="status" style="margin-right:15px; font-weight:600; font-size:0.9rem;">Loading...</span>
             <button id="addStudentBtn" class="primary-btn" onclick="addNewStudent()" style="display:none;">+ Add Student</button>
         </div>
     </header>
@@ -104,294 +87,363 @@
     <div id="app"></div>
 </div>
 
-<script>
-    // ▼▼▼▼▼ PASTE YOUR WEB APP URL HERE ▼▼▼▼▼
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxDYYJf56i-PJy-5d4O-DJE-MCZOb9MX3iUiCUllDW-kUraQOCTlZ5Da1PAymNQaycB/exec";
-    // ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
+<div id="reportModal" class="modal-overlay">
+    <div class="modal">
+        <div class="modal-header">
+            <h3 style="margin:0">Generate Monthly Report</h3>
+            <span style="cursor:pointer; font-size:1.5rem;" onclick="closeModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div style="display:flex; gap:10px; align-items:center; margin-bottom:10px;">
+                <label>Month:</label>
+                <input type="month" id="reportMonth" onchange="refreshReportData()">
+            </div>
 
-    let allStudents = []; // Stores EVERYONE from the sheet
-    let currentTutor = localStorage.getItem('lastTutor') || ""; // Remember selection
+            <input type="hidden" id="currentReportStudentId">
+
+            <div>
+                <label class="report-label">1. Lesson Dates (Auto)</label>
+                <input id="rep-dates" class="auto-filled" readonly>
+            </div>
+
+            <div class="row">
+                <div style="flex:1">
+                    <label class="report-label">2. Grammar Topics</label>
+                    <textarea id="rep-grammar" class="report-textarea"></textarea>
+                </div>
+                <div style="flex:1">
+                    <label class="report-label">3. Vocab Topics</label>
+                    <textarea id="rep-vocab" class="report-textarea"></textarea>
+                </div>
+            </div>
+
+            <div>
+                <label class="report-label">4. Speaking Feedback</label>
+                <div id="notes-speaking" class="notes-preview">Your notes will appear here...</div>
+                <textarea id="rep-speaking" class="report-textarea" placeholder="Write feedback..."></textarea>
+            </div>
+
+            <div>
+                <label class="report-label">5. Text/Writing Improvement</label>
+                <textarea id="rep-writing" class="report-textarea" placeholder="Write feedback..."></textarea>
+            </div>
+
+            <div>
+                <label class="report-label">6. 5 Improvements</label>
+                <div id="notes-general" class="notes-preview">Your notes will appear here...</div>
+                <textarea id="rep-improvements" class="report-textarea" placeholder="List 5 improvements..."></textarea>
+            </div>
+
+            <div>
+                <label class="report-label">7. Homework & Attendance (Auto)</label>
+                <input id="rep-hw" class="auto-filled" readonly>
+            </div>
+
+            <div>
+                <label class="report-label">8. Confidence Level</label>
+                <textarea id="rep-confidence" class="report-textarea" placeholder="e.g. Student is more confident in..."></textarea>
+            </div>
+
+            <div>
+                <label class="report-label">9. Student Quotes</label>
+                <textarea id="rep-quotes" class="report-textarea"></textarea>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button onclick="closeModal()" style="background:#e5e7eb; color:#374151;">Cancel</button>
+            <button onclick="copyReport()" class="primary-btn" style="background:#059669;">📋 Copy for WhatsApp</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxDYYJf56i-PJy-5d4O-DJE-MCZOb9MX3iUiCUllDW-kUraQOCTlZ5Da1PAymNQaycB/exec";
+
+    let allStudents = [];
+    let currentTutor = localStorage.getItem('lastTutor') || "";
     let saveTimeout;
 
     // --- INITIALIZATION ---
     async function loadData() {
-        updateStatus("Loading database...", "saving");
+        updateStatus("Loading...", "saving");
         try {
             const response = await fetch(GOOGLE_SCRIPT_URL);
             const data = await response.json();
-
             allStudents = data.map(item => {
                 let parsed = JSON.parse(item.json);
-                let lessons = parsed.lessons || createDefaultLessons();
-
                 return {
                     id: parsed.id || Date.now(),
-                    tutor: item.tutor || "Unassigned", // NEW FIELD
+                    tutor: item.tutor || "Unassigned",
                     name: item.name,
                     meetLink: parsed.meetLink || "",
-                    lessons: lessons
+                    lessons: parsed.lessons || createDefaultLessons()
                 };
             });
-
             initTutorDropdown();
-
-            // If we have a saved tutor, load their page. If not, show welcome.
-            if (currentTutor && getUniqueTutors().includes(currentTutor)) {
-                render();
-            } else {
-                document.getElementById('app').innerHTML = `<div class="welcome-screen"><h2>👋 Welcome!</h2><p>Please select your name from the dropdown above to see your students.<br>Or select " + Add New Tutor" to create your profile.</p></div>`;
-                updateStatus("Waiting for selection", "saved");
+            if (currentTutor && getUniqueTutors().includes(currentTutor)) render();
+            else {
+                document.getElementById('app').innerHTML = `<div style="text-align:center;margin-top:50px;color:#6b7280"><h2>👋 Welcome!</h2><p>Please select your name above.</p></div>`;
+                updateStatus("Waiting...", "saved");
             }
-
-        } catch (e) {
-            console.error(e);
-            updateStatus("Error loading data", "error");
-        }
+        } catch (e) { console.error(e); updateStatus("Error loading", "error"); }
     }
 
-    // --- TUTOR MANAGEMENT ---
+    function createDefaultLessons() {
+        // Updated structure for new requirements
+        return [1, 2, 3, 4].map(i => ({
+            label: `Lesson ${i}`,
+            status: "", date: "",
+            grammar: "", vocab: "", // Split topics
+            hw: "", quote: "", note: "" // New fields
+        }));
+    }
+
+    // --- TUTOR LOGIC ---
     function getUniqueTutors() {
-        const tutors = new Set(allStudents.map(s => s.tutor));
-        // Remove empty or undefined
-        tutors.delete(undefined);
-        tutors.delete("");
+        const tutors = new Set(allStudents.map(s => s.tutor).filter(t => t));
         return Array.from(tutors).sort();
     }
 
     function initTutorDropdown() {
         const select = document.getElementById('tutorSelect');
-        const tutors = getUniqueTutors();
-
         select.innerHTML = `<option value="" disabled>Select Tutor...</option>`;
-
-        tutors.forEach(t => {
-            select.innerHTML += `<option value="${t}">${t}</option>`;
-        });
-
+        getUniqueTutors().forEach(t => select.innerHTML += `<option value="${t}">${t}</option>`);
         select.innerHTML += `<option value="__NEW__">➕ Add New Tutor...</option>`;
-
-        if(currentTutor && tutors.includes(currentTutor)) {
-            select.value = currentTutor;
-            document.getElementById('addStudentBtn').style.display = 'block';
-        }
+        if(currentTutor) select.value = currentTutor;
     }
 
     function switchTutor(value) {
         if (value === "__NEW__") {
-            const newName = prompt("Enter your name (Tutor Name):");
-            if (newName && newName.trim() !== "") {
+            const newName = prompt("Tutor Name:");
+            if (newName && newName.trim()) {
                 currentTutor = newName.trim();
-                // Add a dummy student to initialize this tutor in the system
-                allStudents.push({
-                    id: Date.now(),
-                    tutor: currentTutor,
-                    name: "Example Student",
-                    lessons: createDefaultLessons(),
-                    meetLink: ""
-                });
-                triggerSave(); // Save immediately so the new tutor exists in cloud
-                initTutorDropdown(); // Refresh list
-                document.getElementById('tutorSelect').value = currentTutor;
-            } else {
-                document.getElementById('tutorSelect').value = currentTutor || "";
-                return;
-            }
-        } else {
-            currentTutor = value;
-        }
-
+                allStudents.push({ id: Date.now(), tutor: currentTutor, name: "Example Student", lessons: createDefaultLessons() });
+                triggerSave(); initTutorDropdown(); document.getElementById('tutorSelect').value = currentTutor;
+            } else { document.getElementById('tutorSelect').value = currentTutor || ""; return; }
+        } else currentTutor = value;
         localStorage.setItem('lastTutor', currentTutor);
         document.getElementById('addStudentBtn').style.display = 'block';
         render();
     }
 
-    // --- DATA HANDLING ---
-    function createDefaultLessons() {
-        return [1, 2, 3, 4].map(i => ({ label: `Lesson ${i}`, status: "", date: "", topic: "" }));
-    }
-
+    // --- SAVE LOGIC ---
     function triggerSave() {
-        render(); // Optimistic update
-        updateStatus("Saving to cloud...", "saving");
+        render(); // Optimistic
+        updateStatus("Saving...", "saving");
         clearTimeout(saveTimeout);
         saveTimeout = setTimeout(saveToGoogleSheets, 2000);
     }
 
     async function saveToGoogleSheets() {
-        // IMPORTANT: We send ALL students back, not just the current tutor's
-        // We just re-map them to the structure the backend expects
-        const payload = allStudents.map(s => ({
-            tutor: s.tutor,
-            name: s.name,
-            id: s.id,
-            meetLink: s.meetLink,
-            lessons: s.lessons
-        }));
-
+        const payload = allStudents.map(s => ({ tutor: s.tutor, name: s.name, id: s.id, meetLink: s.meetLink, lessons: s.lessons }));
         try {
             await fetch(GOOGLE_SCRIPT_URL, {
-                method: "POST",
-                mode: "no-cors",
+                method: "POST", mode: "no-cors",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
             });
-            updateStatus("All changes saved", "saved");
-        } catch (e) {
-            updateStatus("Save failed!", "error");
-        }
+            updateStatus("Saved", "saved");
+        } catch (e) { updateStatus("Save Failed", "error"); }
     }
 
     function updateStatus(msg, type) {
         const el = document.getElementById('status');
         el.textContent = msg;
-        el.className = `status-bar ${type}`;
+        el.style.color = type === 'error' ? '#dc2626' : (type === 'saved' ? '#059669' : '#d97706');
     }
 
     // --- CRUD ACTIONS ---
     function addNewStudent() {
-        if (!currentTutor) return alert("Please select a tutor first!");
-
-        const name = prompt("Enter New Student Name:");
+        const name = prompt("Student Name:");
         if(!name) return;
-
-        allStudents.push({
-            id: Date.now(),
-            tutor: currentTutor, // Assign to CURRENT tutor
-            name: name,
-            meetLink: "",
-            lessons: createDefaultLessons()
-        });
+        allStudents.push({ id: Date.now(), tutor: currentTutor, name: name, lessons: createDefaultLessons() });
         triggerSave();
     }
 
     function deleteStudent(id) {
-        if(confirm("Delete this student permanently?")) {
-            allStudents = allStudents.filter(s => s.id !== id);
-            triggerSave();
-        }
+        if(confirm("Delete student?")) { allStudents = allStudents.filter(s => s.id !== id); triggerSave(); }
     }
 
-    // --- LESSON LOGIC (Same as before, just finding by ID in global list) ---
-    function addLesson(studentId) {
-        const s = allStudents.find(s => s.id === studentId);
-        s.lessons.push({ label: `Lesson ${s.lessons.length + 1}`, status: "", date: "", topic: "" });
+    function addLesson(id) {
+        const s = allStudents.find(s => s.id === id);
+        s.lessons.push({ label: `Lesson ${s.lessons.length + 1}`, status: "", date: "", grammar:"", vocab:"", hw:"", quote:"", note:"" });
         triggerSave();
     }
 
-    function removeLesson(studentId, index) {
-        if(confirm("Remove this lesson box?")) {
-            const s = allStudents.find(s => s.id === studentId);
-            s.lessons.splice(index, 1);
-            triggerSave();
-        }
+    function removeLesson(id, index) {
+        if(confirm("Delete lesson?")) { allStudents.find(s => s.id === id).lessons.splice(index, 1); triggerSave(); }
     }
 
-    function updateLesson(studentId, index, field, value) {
-        const s = allStudents.find(s => s.id === studentId);
-        s.lessons[index][field] = value;
-        if(field === 'status' || field === 'label') triggerSave();
-        else {
-            updateStatus("Saving...", "saving");
+    function updateLesson(id, idx, field, val) {
+        const s = allStudents.find(s => s.id === id);
+        s.lessons[idx][field] = val;
+        // Don't re-render on text input to keep focus, just queue save
+        if(field !== 'status' && field !== 'hw') {
             clearTimeout(saveTimeout);
             saveTimeout = setTimeout(saveToGoogleSheets, 2000);
-            if(field === 'topic') updateTopicListDOM(s);
+            updateStatus("Saving...", "saving");
+        } else {
+            triggerSave();
         }
     }
 
     function editMeetLink(id) {
         const s = allStudents.find(s => s.id === id);
-        let link = prompt(`Paste Google Meet link for ${s.name}:`, s.meetLink);
-        if (link !== null) {
-            link = link.trim();
-            if(link && !link.startsWith('http')) link = 'https://' + link;
-            s.meetLink = link;
-            triggerSave();
-        }
+        let link = prompt("Meet Link:", s.meetLink);
+        if (link !== null) { s.meetLink = link.trim(); triggerSave(); }
     }
 
-    // --- RENDERING ---
-    function getStatusClass(status) {
-        if (status === 'present') return 'status-present';
-        if (status === 'late') return 'status-late';
-        if (status === 'canceled') return 'status-canceled';
-        if (status === 'absent') return 'status-absent';
-        return 'status-none';
+    // --- REPORT GENERATOR ---
+    function openReportModal(studentId) {
+        document.getElementById('currentReportStudentId').value = studentId;
+        // Default to current month
+        const now = new Date();
+        const monthStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+        document.getElementById('reportMonth').value = monthStr;
+
+        refreshReportData();
+        document.getElementById('reportModal').style.display = 'flex';
     }
 
-    function updateTopicListDOM(student) {
-        const container = document.getElementById(`topic-container-${student.id}`);
-        if(container) container.innerHTML = generateTopicHTML(student);
+    function closeModal() { document.getElementById('reportModal').style.display = 'none'; }
+
+    function refreshReportData() {
+        const studentId = parseInt(document.getElementById('currentReportStudentId').value);
+        const monthInput = document.getElementById('reportMonth').value; // "YYYY-MM"
+        const student = allStudents.find(s => s.id === studentId);
+
+        if (!student || !monthInput) return;
+
+        // Filter lessons for this month
+        const [year, month] = monthInput.split('-');
+        const monthLessons = student.lessons.filter(l => {
+            if (!l.date) return false;
+            const d = new Date(l.date);
+            return d.getFullYear() == year && (d.getMonth() + 1) == month;
+        });
+
+        // 1. Dates
+        const attended = monthLessons.filter(l => l.status === 'present');
+        const dateStr = attended.map(l => {
+            const d = new Date(l.date);
+            return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}`;
+        }).join(', ');
+        document.getElementById('rep-dates').value = dateStr || "No attended lessons";
+
+        // 2 & 3 Topics
+        document.getElementById('rep-grammar').value = monthLessons.map(l => l.grammar).filter(t => t).join(', ');
+        document.getElementById('rep-vocab').value = monthLessons.map(l => l.vocab).filter(t => t).join(', ');
+
+        // 7. HW & Attendance
+        const hwDone = monthLessons.filter(l => l.hw === 'done').length;
+        const hwTotal = monthLessons.filter(l => l.hw).length; // Only count if assigned
+        const hwPerc = hwTotal > 0 ? Math.round((hwDone / hwTotal) * 100) : 0;
+
+        const attTotal = monthLessons.filter(l => l.status === 'present' || l.status === 'absent' || l.status === 'late').length;
+        const attPres = monthLessons.filter(l => l.status === 'present' || l.status === 'late').length;
+        const attPerc = attTotal > 0 ? Math.round((attPres / attTotal) * 100) : 0;
+
+        document.getElementById('rep-hw').value = `HW: ${hwPerc}% completed. Attendance: ${attPerc}%`;
+
+        // 9. Quotes
+        document.getElementById('rep-quotes').value = monthLessons.map(l => l.quote ? `"${l.quote}"` : '').filter(q => q).join('\n');
+
+        // Helper Notes for Subjective fields
+        const notes = monthLessons.map(l => l.note).filter(n => n).join(' | ');
+        document.getElementById('notes-speaking').innerText = notes ? `Notes from lessons: ${notes}` : "No private notes recorded for this month.";
+        document.getElementById('notes-general').innerText = notes ? `Notes from lessons: ${notes}` : "No private notes recorded for this month.";
     }
 
-    function generateTopicHTML(student) {
-        const topics = student.lessons.map(l => l.topic.trim()).filter(t => t.length > 0).sort((a, b) => a.localeCompare(b));
-        if (topics.length === 0) return '<div style="color:#9ca3af;font-style:italic;font-size:0.85rem">No topics yet.</div>';
-        return `<ul class="topic-list">` + topics.map(t => `<li class="topic-item"><span class="topic-bullet">•</span> ${t}</li>`).join('') + `</ul>`;
+    function copyReport() {
+        const v = (id) => document.getElementById(id).value;
+        const report =
+            `ОТЧЕТ ежемесячный
+1. Дни проведенных уроков: ${v('rep-dates')}
+2. Список грамматических тем: ${v('rep-grammar')}
+3. Список тем по вокабуляру: ${v('rep-vocab')}
+4. Обратная связь по спикингу: ${v('rep-speaking')}
+5. По улучшению текста: ${v('rep-writing')}
+6. 5 любые улучшения: ${v('rep-improvements')}
+7. По дз выполняемость и посещаемость: ${v('rep-hw')}
+8. Уверенность: ${v('rep-confidence')}
+9. Комментарии самого клиента:
+${v('rep-quotes')}`;
+
+        navigator.clipboard.writeText(report).then(() => alert("Report copied to clipboard!"));
     }
 
+    // --- RENDER ---
     function render() {
         const app = document.getElementById('app');
         app.innerHTML = "";
-
-        // FILTER: Only show students for the current tutor
         const myStudents = allStudents.filter(s => s.tutor === currentTutor);
 
         if (myStudents.length === 0) {
-            app.innerHTML = `<div class="welcome-screen"><h3>You have no students yet.</h3><p>Click "+ Add Student" to start.</p></div>`;
+            app.innerHTML = `<div style="text-align:center;margin-top:50px;color:#6b7280"><h3>You have no students yet.</h3><p>Click "+ Add Student" to start.</p></div>`;
             return;
         }
 
         myStudents.forEach(s => {
-            // Build Lesson HTML
-            let lessonsHtml = s.lessons.map((lesson, i) => `
+            let lessonsHtml = s.lessons.map((l, i) => `
                 <div class="lesson-unit">
                     <div class="lesson-top">
-                        <input class="lesson-label" value="${lesson.label}" onchange="updateLesson(${s.id}, ${i}, 'label', this.value)">
+                        <input class="lesson-label" value="${l.label}" onchange="updateLesson(${s.id}, ${i}, 'label', this.value)">
                         <span class="delete-lesson-btn" onclick="removeLesson(${s.id}, ${i})">&times;</span>
                     </div>
-                    <select class="status-select ${getStatusClass(lesson.status)}" onchange="updateLesson(${s.id}, ${i}, 'status', this.value)">
-                        <option value="" ${!lesson.status?'selected':''}>Status...</option>
-                        <option value="present" ${lesson.status==='present'?'selected':''}>Attended</option>
-                        <option value="late" ${lesson.status==='late'?'selected':''}>Late</option>
-                        <option value="canceled" ${lesson.status==='canceled'?'selected':''}>Canceled</option>
-                        <option value="absent" ${lesson.status==='absent'?'selected':''}>Absent</option>
-                    </select>
-                    <div class="lesson-meta">
-                        <input type="date" value="${lesson.date}" onchange="updateLesson(${s.id}, ${i}, 'date', this.value)">
-                        <input type="text" placeholder="Topic..." value="${lesson.topic}" onchange="updateLesson(${s.id}, ${i}, 'topic', this.value)">
+
+                    <div class="row">
+                        <input type="date" value="${l.date}" onchange="updateLesson(${s.id}, ${i}, 'date', this.value)" style="flex:1">
+                        <select class="status-select ${l.status === 'present' ? 'status-present' : l.status === 'late' ? 'status-late' : l.status === 'canceled' ? 'status-canceled' : l.status === 'absent' ? 'status-absent' : ''}"
+                                onchange="updateLesson(${s.id}, ${i}, 'status', this.value)" style="flex:1">
+                            <option value="" ${!l.status?'selected':''}>Status...</option>
+                            <option value="present" ${l.status==='present'?'selected':''}>Attended</option>
+                            <option value="late" ${l.status==='late'?'selected':''}>Late</option>
+                            <option value="canceled" ${l.status==='canceled'?'selected':''}>Canceled</option>
+                            <option value="absent" ${l.status==='absent'?'selected':''}>Absent</option>
+                        </select>
                     </div>
+
+                    <div class="row">
+                        <input class="input-grammar" placeholder="Grammar..." value="${l.grammar||''}" oninput="updateLesson(${s.id}, ${i}, 'grammar', this.value)">
+                    </div>
+                    <div class="row">
+                        <input class="input-vocab" placeholder="Vocab..." value="${l.vocab||''}" oninput="updateLesson(${s.id}, ${i}, 'vocab', this.value)">
+                    </div>
+
+                    <div class="row">
+                        <select onchange="updateLesson(${s.id}, ${i}, 'hw', this.value)" style="flex:1; font-size:0.8rem;">
+                            <option value="" ${!l.hw?'selected':''}>HW Status...</option>
+                            <option value="done" ${l.hw==='done'?'selected':''}>✅ HW Done</option>
+                            <option value="partial" ${l.hw==='partial'?'selected':''}>⚠️ Partial</option>
+                            <option value="missed" ${l.hw==='missed'?'selected':''}>❌ No HW</option>
+                        </select>
+                    </div>
+
+                    <textarea placeholder="Student quote..." oninput="updateLesson(${s.id}, ${i}, 'quote', this.value)" style="height:40px">${l.quote||''}</textarea>
+                    <textarea placeholder="Private note (for report)..." oninput="updateLesson(${s.id}, ${i}, 'note', this.value)" style="height:40px; background:#fffbeb; border-color:#fcd34d;">${l.note||''}</textarea>
                 </div>
             `).join("");
 
-            // Meet Button Logic
             let meetBtn = s.meetLink
-                ? `<div class="meet-wrapper"><a href="${s.meetLink}" target="_blank" class="meet-btn meet-active">📹 Join Class</a><span class="meet-edit" onclick="editMeetLink(${s.id})">✎</span></div>`
-                : `<div class="meet-wrapper"><button class="meet-btn meet-empty" onclick="editMeetLink(${s.id})">➕ Add Link</button></div>`;
+                ? `<a href="${s.meetLink}" target="_blank" class="primary-btn" style="text-decoration:none; padding: 6px 12px; font-size:0.9rem; background:#dbeafe; color:#1e40af;">📹 Join</a>`
+                : `<button onclick="editMeetLink(${s.id})" style="background:#f3f4f6; color:#6b7280;">+ Link</button>`;
 
             app.innerHTML += `
             <div class="student-card">
                 <div class="card-header">
                     <div class="header-left">
-                        <h3>${s.name}</h3>
+                        <h3 style="margin:0">${s.name}</h3>
                         ${meetBtn}
+                        <button class="report-btn" onclick="openReportModal(${s.id})">📄 Report</button>
                     </div>
                     <button class="delete-student" onclick="deleteStudent(${s.id})">Delete</button>
                 </div>
-                <div class="card-body">
-                    <div class="lessons-area">
-                        <div class="attendance-grid">
-                            ${lessonsHtml}
-                            <div class="add-lesson-btn" onclick="addLesson(${s.id})">+</div>
-                        </div>
-                    </div>
-                    <div class="summary-panel">
-                        <h4 style="margin:0 0 10px 0;font-size:0.9rem;color:#4b5563">COVERED TOPICS</h4>
-                        <div id="topic-container-${s.id}">${generateTopicHTML(s)}</div>
-                    </div>
+                <div class="attendance-grid">
+                    ${lessonsHtml}
+                    <div class="add-lesson-btn" onclick="addLesson(${s.id})">+</div>
                 </div>
             </div>`;
         });
-
         updateStatus("Synced", "saved");
     }
 
