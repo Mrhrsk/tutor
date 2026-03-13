@@ -151,7 +151,11 @@
                 };
             });
             initTutorDropdown();
-            if (currentTutor && getUniqueTutors().includes(currentTutor)) render();
+            if (currentTutor && getUniqueTutors().includes(currentTutor)) {
+                // FIX: Show the Add Student button when a tutor is already saved
+                document.getElementById('addStudentBtn').style.display = 'block';
+                render();
+            }
             else {
                 document.getElementById('app').innerHTML = `<div style="text-align:center;margin-top:50px;color:#6b7280"><h2>👋 Welcome!</h2><p>Please select your name above.</p></div>`;
                 updateStatus("Waiting...", "saved");
@@ -188,7 +192,7 @@
             const newName = prompt("Tutor Name:");
             if (newName && newName.trim()) {
                 currentTutor = newName.trim();
-                allStudents.push({ id: Date.now(), tutor: currentTutor, name: "Example Student", lessons: createDefaultLessons() });
+                allStudents.push({ id: Date.now(), tutor: currentTutor, name: "Example Student", meetLink: "", lessons: createDefaultLessons() });
                 triggerSave(); initTutorDropdown(); document.getElementById('tutorSelect').value = currentTutor;
             } else { document.getElementById('tutorSelect').value = currentTutor || ""; return; }
         } else currentTutor = value;
@@ -227,7 +231,7 @@
     function addNewStudent() {
         const name = prompt("Student Name:");
         if(!name) return;
-        allStudents.push({ id: Date.now(), tutor: currentTutor, name: name, lessons: createDefaultLessons() });
+        allStudents.push({ id: Date.now(), tutor: currentTutor, name: name, meetLink: "", lessons: createDefaultLessons() });
         triggerSave();
     }
 
@@ -268,7 +272,6 @@
         document.getElementById('currentReportStudentId').value = studentId;
         const student = allStudents.find(s => s.id === studentId);
 
-        // Populate the Lesson Dropdowns dynamically based on the student's actual lessons
         const startSelect = document.getElementById('startLessonSelect');
         const endSelect = document.getElementById('endLessonSelect');
         startSelect.innerHTML = '';
@@ -280,10 +283,9 @@
             endSelect.innerHTML += optionHtml;
         });
 
-        // Smart defaults: Select the last 7 lessons if possible
         if (student.lessons.length > 0) {
             let endIdx = student.lessons.length - 1;
-            let startIdx = Math.max(0, endIdx - 6); // 7 lessons total
+            let startIdx = Math.max(0, endIdx - 6);
             startSelect.value = startIdx;
             endSelect.value = endIdx;
         }
@@ -310,12 +312,10 @@
             return;
         }
 
-        // Slice the array to get ONLY the selected range of lessons
         const rangeLessons = student.lessons.slice(startIdx, endIdx + 1);
 
         if (rangeLessons.length === 0) return;
 
-        // Calculate Stats for the AI based on the selected range
         const hwTotal = rangeLessons.filter(l => l.hw).length;
         const hwDone = rangeLessons.filter(l => l.hw === 'done').length;
         const hwPerc = hwTotal > 0 ? Math.round((hwDone / hwTotal) * 100) : 0;
@@ -323,7 +323,6 @@
         const attPres = rangeLessons.filter(l => l.status === 'present' || l.status === 'late').length;
         const attPerc = attTotal > 0 ? Math.round((attPres / attTotal) * 100) : 0;
 
-        // Build Raw Data String
         const rawData = rangeLessons.map(l => `
 Lesson Label: ${l.label}
 Date: ${l.date || 'No Date'}
@@ -373,7 +372,7 @@ Report format to strictly follow:
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     contents: [{ parts: [{ text: systemPrompt }] }],
-                    generationConfig: { temperature: 0.2 } // Lowered temperature to make it more strictly factual
+                    generationConfig: { temperature: 0.2 }
                 })
             });
 
